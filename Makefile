@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CXX = g++ -std=c++14
-CXXFLAGS = -Wall -Wextra -O3 -m64 -g
+CXXFLAGS = -Wall -Wextra -O3 -m64 -g -fPIC
 
 objects = src/turingMachine.o \
 		  src/markovTable.o \
@@ -13,16 +13,21 @@ objects = src/turingMachine.o \
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 tm: $(objects)
-	$(CXX) $^ -o $@
+	$(CXX) $(LFLAGS) $^ -o $@
+
+libtm.so: $(objects) src/tm_c.o
+	$(CXX) -shared -static-libstdc++ $^ -o $@
 
 all: tm
 
 clean:
-	rm -f src/*.o tm
+	rm -f src/*.o tm libtm.so
 
 # Dependencies
 
 main.o: src/main.cpp src/tm.h src/parseArgs.h
+
+src/tm_c.o: src/tm_c.cpp src/tm_c.h src/tm.h
 
 src/tm.o: src/tm.cpp src/tm.h src/turingMachine.h src/markovTable.h
 
